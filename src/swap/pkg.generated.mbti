@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "f4ah6o/mhx-spec/swap"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) enum Strategy {
+  InnerHTML
+  OuterHTML
+  BeforeBegin
+  AfterBegin
+  BeforeEnd
+  AfterEnd
+  Delete
+  None_
+}
+pub fn Strategy::from_string(String) -> Self
+pub fn Strategy::to_string(Self) -> String
+pub impl Eq for Strategy
+pub impl Show for Strategy
+
+pub(all) struct SwapOptions {
+  strategy : Strategy
+  swap_delay : Int
+  settle_delay : Int
+  scroll : String
+  show : String
+  focus_scroll : Bool
+}
+pub fn SwapOptions::default() -> Self
+pub fn SwapOptions::parse(String) -> Self
+pub fn SwapOptions::with_strategy(Strategy) -> Self
+pub impl Show for SwapOptions
+
+// Type aliases
+
+// Traits
+

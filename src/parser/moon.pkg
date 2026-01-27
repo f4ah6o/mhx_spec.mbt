@@ -1,0 +1,4 @@
+import {
+  "f4ah6o/mhx-spec/trigger" as @trigger,
+  "moonbitlang/core/json" as @json,
+}

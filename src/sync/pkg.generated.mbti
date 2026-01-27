@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "f4ah6o/mhx-spec/sync"
+
+// Values
+pub fn parse_sync_strategy(String) -> SyncStrategy
+
+// Errors
+
+// Types and methods
+pub(all) enum QueueMode {
+  First
+  Last
+  All
+}
+pub impl Eq for QueueMode
+pub impl Show for QueueMode
+
+pub(all) enum SyncStrategy {
+  Drop
+  Replace
+  Queue(QueueMode)
+}
+pub fn SyncStrategy::to_string(Self) -> String
+pub impl Eq for SyncStrategy
+pub impl Show for SyncStrategy
+
+// Type aliases
+
+// Traits
+
