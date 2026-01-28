@@ -2,5 +2,8 @@
   "name": "f4ah6o/mhx-spec",
   "version": "0.1.0",
   "source": "src",
-  "readme": "README.mbt.md"
+  "readme": "README.mbt.md",
+  "license": "Apache-2.0",
+  "repository": "",
+  "keywords": ["hypermedia", "hda"]
 }
