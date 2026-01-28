@@ -4,6 +4,6 @@
   "source": "src",
   "readme": "README.mbt.md",
   "license": "Apache-2.0",
-  "repository": "",
+  "repository": "https://github.com/f4ah6o/mhx_spec.mbt",
   "keywords": ["hypermedia", "hda"]
 }
