@@ -63,7 +63,7 @@ test "Selector variants" {
 ///|
 test "TriggerDef to_json" {
   let t = TriggerDef::new("click", [Delay(500), Once])
-  @json.inspect(t, content={
+  json_inspect(t, content={
     "event": "click",
     "modifiers": [{ "type": "delay", "ms": 500 }, { "type": "once" }],
   })

@@ -125,7 +125,7 @@ test "parse complex trigger" {
 ///|
 test "parse trigger to_json" {
   let triggers = @parser.parse_trigger("click delay:500ms once")
-  @json.inspect(triggers[0], content={
+  json_inspect(triggers[0], content={
     "event": "click",
     "modifiers": [{ "type": "delay", "ms": 500 }, { "type": "once" }],
   })
