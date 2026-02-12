@@ -1,4 +1,4 @@
 import {
-  "f4ah6o/mhx-spec/trigger" as @trigger,
-  "moonbitlang/core/json" as @json,
+  "f4ah6o/mhx-spec/trigger" @trigger,
+  "moonbitlang/core/json",
 }
