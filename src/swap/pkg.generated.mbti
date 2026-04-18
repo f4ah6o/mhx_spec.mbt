@@ -15,11 +15,9 @@ pub(all) enum Strategy {
   AfterEnd
   Delete
   None_
-}
+} derive(Eq, Show)
 pub fn Strategy::from_string(String) -> Self
 pub fn Strategy::to_string(Self) -> String
-pub impl Eq for Strategy
-pub impl Show for Strategy
 
 pub(all) struct SwapOptions {
   strategy : Strategy
@@ -28,11 +26,10 @@ pub(all) struct SwapOptions {
   scroll : String
   show : String
   focus_scroll : Bool
-}
+} derive(Show)
 pub fn SwapOptions::default() -> Self
 pub fn SwapOptions::parse(String) -> Self
 pub fn SwapOptions::with_strategy(Strategy) -> Self
-pub impl Show for SwapOptions
 
 // Type aliases
 

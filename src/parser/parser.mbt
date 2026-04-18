@@ -11,7 +11,7 @@ pub fn parse_trigger(
   let scanner = Scanner::new(input)
   let triggers : Array[@trigger.TriggerDef] = []
   scanner.skip_whitespace()
-  while not(scanner.is_eof()) {
+  while !scanner.is_eof() {
     let trigger = parse_single_trigger(scanner)
     triggers.push(trigger)
     scanner.skip_whitespace()
@@ -47,7 +47,7 @@ fn parse_modifiers(
   scanner : Scanner,
 ) -> Array[@trigger.Modifier] raise ParseError {
   let modifiers : Array[@trigger.Modifier] = []
-  while not(scanner.is_eof()) && not(scanner.check(',')) {
+  while !scanner.is_eof() && !scanner.check(',') {
     scanner.skip_whitespace()
     if scanner.is_eof() || scanner.check(',') {
       break
@@ -150,16 +150,16 @@ fn parse_selector(scanner : Scanner) -> @trigger.Selector {
     "document" => @trigger.Selector::Document
     _ =>
       if value.has_prefix("closest ") {
-        let sel = (try! value[8:].to_string()).trim().to_string()
+        let sel = value[8:].to_string().trim().to_string()
         @trigger.Selector::Closest(sel)
       } else if value.has_prefix("find ") {
-        let sel = (try! value[5:].to_string()).trim().to_string()
+        let sel = value[5:].to_string().trim().to_string()
         @trigger.Selector::Find(sel)
       } else if value.has_prefix("next ") {
-        let sel = (try! value[5:].to_string()).trim().to_string()
+        let sel = value[5:].to_string().trim().to_string()
         @trigger.Selector::Next(sel)
       } else if value.has_prefix("previous ") {
-        let sel = (try! value[9:].to_string()).trim().to_string()
+        let sel = value[9:].to_string().trim().to_string()
         @trigger.Selector::Previous(sel)
       } else {
         // Treat as CSS selector

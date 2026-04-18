@@ -101,7 +101,7 @@ pub fn SwapOptions::parse(value : String) -> SwapOptions {
   // Split by whitespace using split
   let parts : Array[String] = trimmed
     .split(" ")
-    .filter(fn(sv) { not(sv.is_empty()) })
+    .filter(fn(sv) { !sv.is_empty() })
     .map(fn(sv) { sv.to_string() })
     .collect()
   if parts.is_empty() {
@@ -178,7 +178,7 @@ fn pow10(n : Int) -> Int {
 ///|
 /// Parse int or return default
 fn parse_int_or(s : String, default_val : Int) -> Int {
-  @strconv.parse_int(s) catch {
+  @string.parse_int(s) catch {
     _ => default_val
   }
 }

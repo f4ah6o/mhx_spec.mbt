@@ -15,25 +15,21 @@ pub(all) suberror ParseError {
   InvalidNumber(pos~ : Position, value~ : String)
   InvalidModifier(pos~ : Position, name~ : String)
   InvalidSelector(pos~ : Position, value~ : String)
-}
-pub impl Eq for ParseError
-pub impl Show for ParseError
+} derive(Eq, Show)
 pub impl ToJson for ParseError
 
 // Types and methods
 pub(all) struct Position {
   offset : Int
   char : Char
-}
+} derive(Eq, Show)
 pub fn Position::at(Int, String) -> Self
-pub impl Eq for Position
-pub impl Show for Position
 pub impl ToJson for Position
 
 pub struct Scanner {
   input : String
   mut pos : Int
-}
+} derive(Show)
 pub fn Scanner::advance(Self) -> Unit
 pub fn Scanner::check(Self, Char) -> Bool
 pub fn Scanner::current(Self) -> Char
@@ -52,7 +48,6 @@ pub fn Scanner::scan_selector_value(Self) -> String
 pub fn Scanner::scan_until(Self, Char) -> String
 pub fn Scanner::skip_whitespace(Self) -> Unit
 pub fn Scanner::try_consume(Self, Char) -> Bool
-pub impl Show for Scanner
 
 // Type aliases
 

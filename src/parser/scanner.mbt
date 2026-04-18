@@ -64,7 +64,7 @@ pub fn Scanner::advance(self : Scanner) -> Unit {
 ///|
 /// Skip whitespace characters
 pub fn Scanner::skip_whitespace(self : Scanner) -> Unit {
-  while not(self.is_eof()) {
+  while !self.is_eof() {
     match self.peek() {
       Some(' ' | '\t' | '\n' | '\r') => self.advance()
       _ => break
@@ -144,13 +144,13 @@ fn is_modifier_keyword(s : String) -> Bool {
 /// Scan an identifier (letters, digits, hyphens, underscores)
 pub fn Scanner::scan_identifier(self : Scanner) -> String {
   let start = self.pos
-  while not(self.is_eof()) {
+  while !self.is_eof() {
     match self.peek() {
       Some(c) if is_ident_char(c) => self.advance()
       _ => break
     }
   }
-  try! self.input[start:self.pos].to_string()
+  self.input[start:self.pos].to_string()
 }
 
 ///|
@@ -191,13 +191,13 @@ pub fn Scanner::is_at_modifier_start(self : Scanner) -> Bool {
 /// Scan an integer
 pub fn Scanner::scan_int(self : Scanner) -> Int raise ParseError {
   let start = self.pos
-  while not(self.is_eof()) {
+  while !self.is_eof() {
     match self.peek() {
       Some(c) if is_digit(c) => self.advance()
       _ => break
     }
   }
-  let num_str = try! self.input[start:self.pos].to_string()
+  let num_str = self.input[start:self.pos].to_string()
   if num_str.is_empty() {
     raise InvalidNumber(pos=Position::at(start, self.input), value=num_str)
   }
@@ -213,14 +213,14 @@ pub fn Scanner::scan_int(self : Scanner) -> Int raise ParseError {
 /// Scan until a specific character (not including that character)
 pub fn Scanner::scan_until(self : Scanner, end_char : Char) -> String {
   let start = self.pos
-  while not(self.is_eof()) {
+  while !self.is_eof() {
     match self.peek() {
       Some(c) if c == end_char => break
       Some(_) => self.advance()
       None => break
     }
   }
-  try! self.input[start:self.pos].to_string()
+  self.input[start:self.pos].to_string()
 }
 
 ///|
@@ -238,7 +238,7 @@ pub fn Scanner::scan_bracketed(self : Scanner) -> String raise ParseError {
 pub fn Scanner::scan_selector_value(self : Scanner) -> String {
   let start = self.pos
   let mut depth = 0
-  while not(self.is_eof()) {
+  while !self.is_eof() {
     // Check for comma (separator)
     if self.check(',') && depth == 0 {
       break
@@ -264,7 +264,7 @@ pub fn Scanner::scan_selector_value(self : Scanner) -> String {
       None => break
     }
   }
-  (try! self.input[start:self.pos].to_string()).trim().to_string()
+  self.input[start:self.pos].to_string().trim().to_string()
 }
 
 ///|

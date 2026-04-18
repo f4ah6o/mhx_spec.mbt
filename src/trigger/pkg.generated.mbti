@@ -18,9 +18,7 @@ pub(all) enum Modifier {
   Prevent
   Filter(String)
   Queue(QueueMode)
-}
-pub impl Eq for Modifier
-pub impl Show for Modifier
+} derive(Eq, Show)
 pub impl ToJson for Modifier
 
 pub(all) enum QueueMode {
@@ -29,9 +27,7 @@ pub(all) enum QueueMode {
   QueueFirst
   QueueLast
   QueueAll
-}
-pub impl Eq for QueueMode
-pub impl Show for QueueMode
+} derive(Eq, Show)
 pub impl ToJson for QueueMode
 
 pub(all) enum Selector {
@@ -44,15 +40,13 @@ pub(all) enum Selector {
   Next(String)
   Previous(String)
   Css(String)
-}
-pub impl Eq for Selector
-pub impl Show for Selector
+} derive(Eq, Show)
 pub impl ToJson for Selector
 
 pub(all) struct TriggerDef {
   event_name : String
   modifiers : Array[Modifier]
-}
+} derive(Eq, Show)
 pub fn TriggerDef::get_debounce(Self) -> Int?
 pub fn TriggerDef::get_delay(Self) -> Int?
 pub fn TriggerDef::get_filter(Self) -> String?
@@ -66,8 +60,6 @@ pub fn TriggerDef::new(String, Array[Modifier]) -> Self
 pub fn TriggerDef::should_consume(Self) -> Bool
 pub fn TriggerDef::should_prevent(Self) -> Bool
 pub fn TriggerDef::simple(String) -> Self
-pub impl Eq for TriggerDef
-pub impl Show for TriggerDef
 pub impl ToJson for TriggerDef
 
 // Type aliases
