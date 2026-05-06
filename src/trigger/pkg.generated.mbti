@@ -19,6 +19,7 @@ pub(all) enum Modifier {
   Filter(String)
   Queue(QueueMode)
 } derive(Eq, Show)
+pub fn Modifier::to_spec_string(Self) -> String
 pub impl ToJson for Modifier
 
 pub(all) enum QueueMode {
@@ -28,6 +29,7 @@ pub(all) enum QueueMode {
   QueueLast
   QueueAll
 } derive(Eq, Show)
+pub fn QueueMode::to_spec_string(Self) -> String
 pub impl ToJson for QueueMode
 
 pub(all) enum Selector {
@@ -41,6 +43,7 @@ pub(all) enum Selector {
   Previous(String)
   Css(String)
 } derive(Eq, Show)
+pub fn Selector::to_spec_string(Self) -> String
 pub impl ToJson for Selector
 
 pub(all) struct TriggerDef {
@@ -60,6 +63,7 @@ pub fn TriggerDef::new(String, Array[Modifier]) -> Self
 pub fn TriggerDef::should_consume(Self) -> Bool
 pub fn TriggerDef::should_prevent(Self) -> Bool
 pub fn TriggerDef::simple(String) -> Self
+pub fn TriggerDef::to_spec_string(Self) -> String
 pub impl ToJson for TriggerDef
 
 // Type aliases

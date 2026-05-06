@@ -17,6 +17,7 @@ pub(all) enum Strategy {
   None_
 } derive(Eq, Show)
 pub fn Strategy::from_string(String) -> Self
+pub fn Strategy::to_spec_string(Self) -> String
 pub fn Strategy::to_string(Self) -> String
 
 pub(all) struct SwapOptions {
@@ -26,9 +27,10 @@ pub(all) struct SwapOptions {
   scroll : String
   show : String
   focus_scroll : Bool
-} derive(Show)
+} derive(Eq, Show)
 pub fn SwapOptions::default() -> Self
 pub fn SwapOptions::parse(String) -> Self
+pub fn SwapOptions::to_spec_string(Self) -> String
 pub fn SwapOptions::with_strategy(Strategy) -> Self
 
 // Type aliases

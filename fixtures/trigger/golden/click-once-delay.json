@@ -1,0 +1,6 @@
+{
+  "kind": "trigger",
+  "show": "[{event_name: \"click\", modifiers: [Delay(1000), Once]}]",
+  "canonical": "click once delay:1000ms",
+  "diagnostic_codes": []
+}

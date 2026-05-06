@@ -132,3 +132,54 @@ pub fn TriggerDef::get_queue_mode(self : TriggerDef) -> QueueMode {
   }
   QueueMode::Drop
 }
+
+///|
+/// Render the trigger in canonical spec form for stable output.
+pub fn TriggerDef::to_spec_string(self : TriggerDef) -> String {
+  let filters : Array[String] = []
+  let once_items : Array[String] = []
+  let changed_items : Array[String] = []
+  let consume_items : Array[String] = []
+  let prevent_items : Array[String] = []
+  let delay_items : Array[String] = []
+  let throttle_items : Array[String] = []
+  let debounce_items : Array[String] = []
+  let from_items : Array[String] = []
+  let target_items : Array[String] = []
+  let queue_items : Array[String] = []
+  for modifier in self.modifiers {
+    match modifier {
+      Filter(expr) => filters.push("[\{expr}]")
+      Once => once_items.push(modifier.to_spec_string())
+      Changed => changed_items.push(modifier.to_spec_string())
+      Consume => consume_items.push(modifier.to_spec_string())
+      Prevent => prevent_items.push(modifier.to_spec_string())
+      Delay(_) => delay_items.push(modifier.to_spec_string())
+      Throttle(_) => throttle_items.push(modifier.to_spec_string())
+      Debounce(_) => debounce_items.push(modifier.to_spec_string())
+      From(_) => from_items.push(modifier.to_spec_string())
+      Target(_) => target_items.push(modifier.to_spec_string())
+      Queue(_) => queue_items.push(modifier.to_spec_string())
+    }
+  }
+  let ordered : Array[String] = []
+  ordered.append(once_items)
+  ordered.append(changed_items)
+  ordered.append(consume_items)
+  ordered.append(prevent_items)
+  ordered.append(delay_items)
+  ordered.append(throttle_items)
+  ordered.append(debounce_items)
+  ordered.append(from_items)
+  ordered.append(target_items)
+  ordered.append(queue_items)
+  let mut result = self.event_name
+  if !filters.is_empty() {
+    result = result + filters.join("")
+  }
+  if ordered.is_empty() {
+    result
+  } else {
+    result + " " + ordered.join(" ")
+  }
+}

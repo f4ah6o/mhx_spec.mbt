@@ -54,6 +54,11 @@ pub fn Strategy::to_string(self : Strategy) -> String {
 }
 
 ///|
+pub fn Strategy::to_spec_string(self : Strategy) -> String {
+  self.to_string()
+}
+
+///|
 /// Extended swap options with timing and scroll control
 pub(all) struct SwapOptions {
   /// The swap strategy
@@ -68,7 +73,7 @@ pub(all) struct SwapOptions {
   show : String
   /// Focus scroll: scroll to focused element
   focus_scroll : Bool
-} derive(Show)
+} derive(Show, Eq)
 
 ///|
 /// Create default swap options
@@ -181,4 +186,30 @@ fn parse_int_or(s : String, default_val : Int) -> Int {
   @string.parse_int(s) catch {
     _ => default_val
   }
+}
+
+///|
+/// Render swap options in canonical spec form for stable output.
+/// Omits modifiers whose values match defaults (swap_delay=0,
+/// settle_delay=20, focus_scroll=false) so the canonical string is
+/// minimal.  Callers that need to preserve explicit `false` values
+/// should store the original attribute string separately.
+pub fn SwapOptions::to_spec_string(self : SwapOptions) -> String {
+  let parts : Array[String] = [self.strategy.to_spec_string()]
+  if self.swap_delay != 0 {
+    parts.push("swap:" + @canonical.format_duration_ms(self.swap_delay))
+  }
+  if self.settle_delay != 20 {
+    parts.push("settle:" + @canonical.format_duration_ms(self.settle_delay))
+  }
+  if !self.scroll.is_empty() {
+    parts.push("scroll:" + self.scroll.trim().to_string())
+  }
+  if !self.show.is_empty() {
+    parts.push("show:" + self.show.trim().to_string())
+  }
+  if self.focus_scroll {
+    parts.push("focus-scroll:true")
+  }
+  parts.join(" ")
 }

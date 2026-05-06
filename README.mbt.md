@@ -30,303 +30,239 @@ Or add it to your `moon.mod.json`:
 
 ## Quick Start
 
-### Parsing Triggers
+### Strict parsing for tooling
+
+Use the parser package when you need syntax errors instead of silent defaults:
 
 ```moonbit
-// Simple event trigger
-let triggers = @parser.parse_trigger("click")
+let triggers = @parser.parse_trigger("click once delay:1s")
+let swap = @parser.parse_swap("outerHTML swap:1.5s")
+let sync = @parser.parse_sync("queue last")
 
-// With modifiers
-let triggers = @parser.parse_trigger("click once delay:500ms")
-
-// With selectors
-let triggers = @parser.parse_trigger("click from:body target:#result")
-
-// With filters
-let triggers = @parser.parse_trigger("keyup[ctrlKey]")
-
-// Multiple events
-let triggers = @parser.parse_trigger("click, keyup")
-
-// Access parsed values
-let trigger = triggers[0]
-println(trigger.event_name)        // "click"
-println(trigger.is_once())         // true
-println(trigger.get_delay())       // Some(500)
+inspect(triggers[0].to_spec_string()) // "click once delay:1000ms"
+inspect(swap.to_spec_string())        // "outerHTML swap:1500ms"
+inspect(sync.to_spec_string())        // "queue:last"
 ```
 
-### Parsing Swap Options
+### Permissive parsing for runtime-facing callers
+
+The existing permissive behavior is still available through explicit helper APIs:
 
 ```moonbit
-let opts = SwapOptions::parse("innerHTML swap:200ms settle:50ms scroll:top")
-
-println(opts.strategy)       // InnerHTML
-println(opts.swap_delay)     // 200
-println(opts.settle_delay)   // 50
-println(opts.scroll)         // "top"
+let swap = @parser.parse_swap_or_default("bogus swap:1s") // falls back to defaults
+let sync = @parser.parse_sync_or_default("bogus")         // falls back to drop
 ```
 
-### Parsing Sync Strategies
+`@swap.SwapOptions::parse(...)` and `@sync.parse_sync_strategy(...)` remain permissive as well.
+
+### Stable diagnostics
+
+Strict parse errors convert into deterministic diagnostics:
 
 ```moonbit
-let sync = SyncStrategy::parse("replace")  // Replace
-let sync = SyncStrategy::parse("drop")     // Drop
-let sync = SyncStrategy::parse("queue:last") // Queue(QueueLast)
+let result : Result[_, @parser.ParseError] = try? @parser.parse_swap("bogus")
+match result {
+  Ok(_) => ()
+  Err(err) => {
+    let diag = err.to_diagnostic(target="hx-swap")
+    inspect(diag.code)     // "MHX_PARSE_UNKNOWN_SWAP_STRATEGY"
+    inspect(diag.position) // Position information for editors and CLIs
+  }
+}
 ```
 
-## Features
-
-### Event Triggers
-
-Parse event specifications with rich modifier support:
-
-#### Basic Events
-```moonbit
-"click"           // Click event
-"submit"          // Form submit
-"keyup"           // Keyboard event
-"change"          // Input change
-```
-
-#### Modifiers
-
-**One-time Events**
-```moonbit
-"click once"      // Fire only once, then remove listener
-```
-
-**Change Detection**
-```moonbit
-"change changed"  // Fire only when value actually changes
-```
-
-**Timing Control**
-```moonbit
-"click delay:500ms"        // Wait 500ms before firing
-"keyup throttle:1s"        // Fire at most once per second
-"input debounce:300ms"     // Fire after 300ms of quiet period
-```
-
-**Selectors**
-```moonbit
-"click from:body"          // Listen from body element
-"click target:#result"     // Target specific element
-"click from:closest div"   // Listen from closest div
-"click from:find .item"    // Listen from found element
-```
-
-**Event Control**
-```moonbit
-"click consume"            // Call stopPropagation()
-"submit prevent"           // Call preventDefault()
-```
-
-**Request Queueing**
-```moonbit
-"click queue:drop"         // Drop new requests while one is pending
-"click queue:replace"      // Replace pending request with new one
-"click queue:first"        // Queue and process first
-"click queue:last"         // Queue and process last
-"click queue:all"          // Queue and process all
-```
-
-**Filters**
-```moonbit
-"keyup[ctrlKey]"                    // Only when Ctrl is pressed
-"click[event.detail === 1]"         // Custom condition
-```
-
-### Swap Strategies
-
-Control how content is replaced in the DOM:
+### Bundle parsing and semantic validation
 
 ```moonbit
-"innerHTML"              // Replace inner content (default)
-"outerHTML"              // Replace entire element
-"beforeBegin"            // Insert before element
-"afterBegin"             // Insert as first child
-"beforeEnd"              // Insert as last child
-"afterEnd"               // Insert after element
-"delete"                 // Delete element
-"none"                   // Don't swap content
+let attrs : Map[String, String] = {
+  "hx-trigger": "click once",
+  "hx-swap": "outerHTML swap:200ms",
+  "hx-sync": "queue last",
+  "hx-target": "closest .item",
+  "hx-get": "/items",
+}
+
+let parsed = @parser.parse_attributes(attrs)
+match parsed {
+  Ok(bundle) => {
+    let diags = @parser.validate_attributes(bundle)
+    inspect(diags.length()) // 0
+  }
+  Err(diags) => inspect(diags)
+}
 ```
 
-#### Swap Modifiers
+## Supported syntax
 
-```moonbit
-"innerHTML swap:200ms"           // Wait 200ms before swapping
-"innerHTML settle:100ms"         // Wait 100ms after swap to settle
-"innerHTML scroll:top"           // Scroll to top after swap
-"innerHTML scroll:bottom"        // Scroll to bottom after swap
-"innerHTML show:top"             // Show top of element
-"innerHTML show:bottom"          // Show bottom of element
-"innerHTML focus-scroll:false"   // Disable scroll on focus
-```
+### Trigger specs
 
-### Sync Strategies
+- event names such as `click`, `submit`, `keyup`
+- modifiers: `once`, `changed`, `consume`, `prevent`
+- durations: `delay:500ms`, `throttle:1s`, `debounce:300ms`
+- selectors: `from:body`, `target:#result`, `from:closest .item`
+- queue modes: `queue:drop`, `queue:replace`, `queue:first`, `queue:last`, `queue:all`
+- filters: `keyup[ctrlKey]`
 
-Control request synchronization:
+### Swap specs
 
-- `drop` - Drop new requests while one is in flight
-- `replace` - Cancel pending request and replace with new one
-- `queue:first` - Queue requests and process first
-- `queue:last` - Queue requests and process last
-- `queue:all` - Queue and process all requests
+- strategies: `innerHTML`, `outerHTML`, `beforebegin`, `afterbegin`, `beforeend`, `afterend`, `delete`, `none`
+- modifiers: `swap:<duration>`, `settle:<duration>`, `scroll:<value>`, `show:<value>`, `focus-scroll:true|false`
+
+### Sync specs
+
+- `drop`
+- `replace`
+- `queue:first`
+- `queue:last`
+- `queue:all`
+
+### Duration syntax
+
+Shared duration parsing accepts:
+
+- `100`
+- `100ms`
+- `1s`
+- `1.5s`
+
+Canonical serialization always renders durations as milliseconds, for example `1500ms`.
+
+Canonical output omits modifiers whose values match the default, so
+explicit `focus-scroll:false` is not preserved through a round-trip
+(default is `false`).  Callers that need to preserve explicit attribute
+strings should store the original input separately.
 
 ## API Reference
 
-### Parser Module (`@parser`)
+### Parser module (`@parser`)
 
-#### `parse_trigger`
+- `parse_trigger(input : String) -> Array[TriggerDef]!ParseError`
+- `parse_swap(input : String) -> SwapOptions!ParseError`
+- `parse_sync(input : String) -> SyncStrategy!ParseError`
+- `parse_swap_or_default(input : String) -> SwapOptions`
+- `parse_sync_or_default(input : String) -> SyncStrategy`
+- `parse_duration_ms(input : String) -> Int!ParseError`
+- `format_duration_ms(ms : Int) -> String`
+- `parse_attributes(attrs : Map[String, String]) -> Result[MhxAttributes, Array[Diagnostic]]`
+- `validate_selector(selector : Selector, mode : SelectorValidation) -> Array[Diagnostic]`
+- `validate_trigger(trigger : TriggerDef) -> Array[Diagnostic]`
+- `validate_swap(options : SwapOptions) -> Array[Diagnostic]`
+- `validate_sync(sync : SyncStrategy) -> Array[Diagnostic]`
+- `validate_attributes(attrs : MhxAttributes) -> Array[Diagnostic]`
+
+### Canonical serialization
+
+- `TriggerDef::to_spec_string() -> String`
+- `SwapOptions::to_spec_string() -> String`
+- `SyncStrategy::to_spec_string() -> String`
+- `Selector::to_spec_string() -> String`
+
+These methods are intended for formatters, golden tests, code generation, and stable diffs.
+
+### Diagnostics contract
+
+`Diagnostic` is the stable v1 error shape:
+
 ```moonbit
-pub fn parse_trigger(input : String) -> Array[TriggerDef]!ParseError
-```
-Parse a trigger attribute value into an array of trigger definitions.
-
-### Trigger Module (`@trigger`)
-
-#### `TriggerDef`
-```moonbit
-pub struct TriggerDef {
-  event_name : String
-  modifiers : Array[Modifier]
+pub struct Diagnostic {
+  code : String
+  message : String
+  target : String
+  position : Position
+  hint : String?
+  context : String?
 }
 ```
 
-**Methods:**
-- `is_once() -> Bool` - Check if trigger fires only once
-- `is_changed() -> Bool` - Check if trigger has changed modifier
-- `is_consume() -> Bool` - Check if trigger consumes event
-- `is_prevent() -> Bool` - Check if trigger prevents default
-- `get_delay() -> Option[Int]` - Get delay in milliseconds
-- `get_throttle() -> Option[Int]` - Get throttle interval
-- `get_debounce() -> Option[Int]` - Get debounce interval
-- `get_from() -> Option[Selector]` - Get source selector
-- `get_target() -> Option[Selector]` - Get target selector
-- `get_filter() -> Option[String]` - Get filter expression
-- `get_queue() -> Option[QueueMode]` - Get queue mode
+Current stable parse-oriented codes include:
 
-#### `Modifier`
-```moonbit
-pub enum Modifier {
-  Once | Changed | Consume | Prevent
-  | Delay(Int) | Throttle(Int) | Debounce(Int)
-  | From(Selector) | Target(Selector)
-  | Filter(String) | Queue(QueueMode)
-}
-```
+- `MHX_PARSE_UNEXPECTED_CHAR`
+- `MHX_PARSE_UNEXPECTED_END`
+- `MHX_PARSE_INVALID_NUMBER`
+- `MHX_PARSE_INVALID_MODIFIER`
+- `MHX_PARSE_INVALID_SELECTOR`
+- `MHX_PARSE_UNKNOWN_SWAP_MODIFIER`
+- `MHX_PARSE_UNKNOWN_SWAP_STRATEGY`
+- `MHX_PARSE_UNKNOWN_SYNC_STRATEGY`
+- `MHX_PARSE_MALFORMED_DURATION`
 
-#### `Selector`
-```moonbit
-pub enum Selector {
-  This | Body | Window | Document
-  | Closest(String) | Find(String)
-  | Next(String) | Previous(String)
-  | Css(String)
-}
-```
+Validation adds deterministic `MHX_VALIDATE_*` diagnostics:
 
-#### `QueueMode`
-```moonbit
-pub enum QueueMode {
-  Drop | Replace | QueueFirst | QueueLast | QueueAll
-}
-```
+- `MHX_VALIDATE_EMPTY_SELECTOR`
+- `MHX_VALIDATE_INVALID_SELECTOR`
+- `MHX_VALIDATE_DUPLICATE_TRIGGER_MODIFIER`
+- `MHX_VALIDATE_SWAP_STRATEGY_CONFLICT`
+- `MHX_VALIDATE_DELETE_SWAP_CONFLICT`
+- `MHX_VALIDATE_TRIGGER_SYNC_CONFLICT`
+- `MHX_VALIDATE_CONFLICTING_REQUEST_METHODS`
+- `MHX_VALIDATE_EMPTY_REQUEST_URL`
+- `MHX_VALIDATE_UNKNOWN_ATTRIBUTE`
 
-### Swap Module (`@swap`)
+Code consumers can distinguish parse errors from semantic validation
+errors by the `MHX_PARSE_` vs `MHX_VALIDATE_` prefix.
 
-#### `SwapOptions`
-```moonbit
-pub struct SwapOptions {
-  pub strategy : Strategy
-  pub swap_delay : Int
-  pub settle_delay : Int
-  pub scroll : String
-  pub show : String
-  pub focus_scroll : Bool
-}
-```
+### Selector validation scope
 
-**Static Methods:**
-- `parse(input : String) -> SwapOptions` - Parse swap options string
+Selector validation intentionally stays lightweight:
 
-#### `Strategy`
-```moonbit
-pub enum Strategy {
-  InnerHTML | OuterHTML | BeforeBegin | AfterBegin
-  | BeforeEnd | AfterEnd | Delete | None_
-}
-```
+- empty selectors are rejected in strict validation modes
+- incomplete extended selectors such as `closest`, `find`, `next`, and `previous` are rejected
+- full CSS grammar validation is **out of scope**
 
-### Sync Module (`@sync`)
+### Package boundary
 
-#### `SyncStrategy`
-```moonbit
-pub enum SyncStrategy {
-  Drop | Replace | Queue(QueueMode)
-}
-```
+`mhx_spec` owns:
 
-**Static Methods:**
-- `parse(input : String) -> SyncStrategy` - Parse sync strategy string
+- attribute grammar
+- typed AST/spec values
+- strict and permissive parsing APIs
+- canonical serialization
+- diagnostics
+- semantic validation
+- compatibility fixtures
 
-### Error Handling
+`mhx_spec` does **not** own:
 
-All parsing functions may raise `ParseError`:
+- DOM execution
+- fetch behavior
+- request scheduling implementations
+- renderer-specific integration
+- runtime coupling to any MoonBit web framework
 
-```moonbit
-pub suberror ParseError {
-  UnexpectedChar(pos: Position, expected: String)
-  | UnexpectedEnd(pos: Position, expected: String)
-  | InvalidNumber(pos: Position, value: String)
-  | InvalidModifier(pos: Position, name: String)
-  | InvalidSelector(pos: Position, value: String)
-}
-```
-
-Errors include position information for debugging:
-```moonbit
-pub struct Position {
-  pub offset : Int
-  pub line : Int
-  pub column : Int
-}
-```
+Runtime packages should consume parsed specs and map them to concrete browser or server behavior.
 
 ## Development
 
-### Prerequisites
-
-- MoonBit toolchain
-
-### Building
+### Validation commands
 
 ```bash
-# Format code
 just fmt
-
-# Type check
+just info
 just check
-
-# Run tests
 just test
-
-# Update test snapshots
-just test-update
 ```
 
-### Running Tests
+### Fixture workflow
 
-The library includes comprehensive test coverage:
+Contract fixtures live under `fixtures/`:
+
+- `fixtures/trigger/{valid,invalid,golden}`
+- `fixtures/swap/{valid,invalid,golden}`
+- `fixtures/sync/{valid,invalid,golden}`
+- `fixtures/compat/htmx/{trigger-compatible,swap-compatible,sync-compatible,unsupported,mhx-extensions}`
+
+The checked-in parser fixture embed can be regenerated with:
 
 ```bash
-moon test
+python3 scripts/embed_fixtures.py . src/parser/fixtures_embedded.mbt
 ```
 
-Test files:
-- `src/parser/parser_test.mbt` - Parser tests (17 tests)
-- `src/trigger/ast_test.mbt` - AST tests (6 tests)
-- `src/swap/swap_test.mbt` - Swap strategy tests (13 tests)
+Run `just test` after updating fixtures so the fixture-backed parser tests and compatibility tests stay in sync.
+
+### Compatibility policy
+
+This package is htmx-like, not a full htmx implementation. Compatibility is backed by fixtures under `fixtures/compat/htmx/`.
+Unsupported syntax should produce explicit diagnostics rather than silently defaulting, and mhx-specific behavior is documented separately from the compatibility subset.
 
 ### Issue Management
 

@@ -12,12 +12,14 @@ pub(all) enum QueueMode {
   Last
   All
 } derive(Eq, Show)
+pub fn QueueMode::to_spec_string(Self) -> String
 
 pub(all) enum SyncStrategy {
   Drop
   Replace
   Queue(QueueMode)
 } derive(Eq, Show)
+pub fn SyncStrategy::to_spec_string(Self) -> String
 pub fn SyncStrategy::to_string(Self) -> String
 
 // Type aliases

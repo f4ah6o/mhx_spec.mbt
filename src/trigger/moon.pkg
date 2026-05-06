@@ -1,3 +1,4 @@
 import {
+  "f4ah6o/mhx-spec/canonical" @canonical,
   "moonbitlang/core/json",
 }

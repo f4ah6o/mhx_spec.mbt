@@ -39,7 +39,17 @@ pub fn parse_sync_strategy(value : String) -> SyncStrategy {
 }
 
 ///|
-/// Convert sync strategy to string (for logging/serialization)
+pub fn QueueMode::to_spec_string(self : QueueMode) -> String {
+  match self {
+    First => "first"
+    Last => "last"
+    All => "all"
+  }
+}
+
+///|
+/// Debug / human-readable representation.
+/// Not guaranteed to be stable; prefer `to_spec_string` for canonical output.
 pub fn SyncStrategy::to_string(self : SyncStrategy) -> String {
   match self {
     Drop => "drop"
@@ -50,5 +60,15 @@ pub fn SyncStrategy::to_string(self : SyncStrategy) -> String {
         QueueMode::Last => "queue last"
         QueueMode::All => "queue all"
       }
+  }
+}
+
+///|
+/// Canonical spec output for formatters, golden tests, and stable diffs.
+pub fn SyncStrategy::to_spec_string(self : SyncStrategy) -> String {
+  match self {
+    Drop => "drop"
+    Replace => "replace"
+    Queue(mode) => "queue:" + mode.to_spec_string()
   }
 }

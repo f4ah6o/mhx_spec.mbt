@@ -68,3 +68,12 @@ test "TriggerDef to_json" {
     "modifiers": [{ "type": "delay", "ms": 500 }, { "type": "once" }],
   })
 }
+
+///|
+test "TriggerDef canonical serialization is stable" {
+  let t = TriggerDef::new("click", [Delay(1000), Once, From(Closest(".item"))])
+  inspect(
+    t.to_spec_string(),
+    content="click once delay:1000ms from:closest .item",
+  )
+}

@@ -268,6 +268,19 @@ pub fn Scanner::scan_selector_value(self : Scanner) -> String {
 }
 
 ///|
+pub fn Scanner::scan_value_token(self : Scanner) -> String {
+  let start = self.pos
+  while !self.is_eof() {
+    match self.peek() {
+      Some(' ' | '\t' | '\n' | '\r' | ',' | '[' | ']') => break
+      Some(_) => self.advance()
+      None => break
+    }
+  }
+  self.input[start:self.pos].to_string()
+}
+
+///|
 /// Get a Position for error reporting
 pub fn Scanner::make_position(self : Scanner) -> Position {
   Position::at(self.pos, self.input)
