@@ -4,7 +4,7 @@ test "selector validation detects empty and incomplete selectors" {
     validate_selector(@trigger.Selector::Css(""), SelectorValidation::NonEmpty),
     content=[
       {
-        "code": "MHX_PARSE_EMPTY_SELECTOR",
+        "code": "MHX_VALIDATE_EMPTY_SELECTOR",
         "message": "Selector must not be empty",
         "target": "selector",
         "position": { "offset": 0, "char": "\u0000" },
@@ -20,7 +20,7 @@ test "selector validation detects empty and incomplete selectors" {
     ),
     content=[
       {
-        "code": "MHX_PARSE_INVALID_SELECTOR",
+        "code": "MHX_VALIDATE_INVALID_SELECTOR",
         "message": "Extended selector `closest` requires a trailing selector",
         "target": "selector",
         "position": { "offset": 0, "char": "\u0000" },
@@ -113,14 +113,14 @@ test "bundle parser reports unknown mhx attributes with stable diagnostics" {
 ///|
 test "bundle validation detects request conflicts and selector issues" {
   let attrs = {
-    ..MhxAttributes::empty(),
+    ..MhxAttributes::default(),
     target: Some(@trigger.Selector::Closest("")),
     get: Some("/items"),
     post: Some(""),
   }
   json_inspect(validate_attributes(attrs), content=[
     {
-      "code": "MHX_PARSE_INVALID_SELECTOR",
+      "code": "MHX_VALIDATE_INVALID_SELECTOR",
       "message": "Extended selector `closest` requires a trailing selector",
       "target": "target",
       "position": { "offset": 0, "char": "\u0000" },

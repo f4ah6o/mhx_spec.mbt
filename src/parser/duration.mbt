@@ -129,5 +129,5 @@ pub fn parse_duration_ms(input : String) -> Int raise ParseError {
 
 ///|
 pub fn format_duration_ms(ms : Int) -> String {
-  "\{ms}ms"
+  @canonical.format_duration_ms(ms)
 }

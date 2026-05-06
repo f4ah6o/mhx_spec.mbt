@@ -48,7 +48,8 @@ pub fn QueueMode::to_spec_string(self : QueueMode) -> String {
 }
 
 ///|
-/// Convert sync strategy to string (for logging/serialization)
+/// Debug / human-readable representation.
+/// Not guaranteed to be stable; prefer `to_spec_string` for canonical output.
 pub fn SyncStrategy::to_string(self : SyncStrategy) -> String {
   match self {
     Drop => "drop"
@@ -63,6 +64,7 @@ pub fn SyncStrategy::to_string(self : SyncStrategy) -> String {
 }
 
 ///|
+/// Canonical spec output for formatters, golden tests, and stable diffs.
 pub fn SyncStrategy::to_spec_string(self : SyncStrategy) -> String {
   match self {
     Drop => "drop"

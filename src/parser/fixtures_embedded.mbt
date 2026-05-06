@@ -67,7 +67,7 @@ let fixture_fixtures_compat_htmx_unsupported_trigger_closest_empty_json : String
   #|  "kind": "trigger",
   #|  "show": null,
   #|  "canonical": null,
-  #|  "diagnostic_codes": ["MHX_PARSE_INVALID_SELECTOR"]
+  #|  "diagnostic_codes": ["MHX_VALIDATE_INVALID_SELECTOR"]
   #|}
   #|
 
@@ -152,7 +152,7 @@ let fixture_fixtures_trigger_golden_from_closest_empty_json : String =
   #|  "kind": "trigger",
   #|  "show": null,
   #|  "canonical": null,
-  #|  "diagnostic_codes": ["MHX_PARSE_INVALID_SELECTOR"]
+  #|  "diagnostic_codes": ["MHX_VALIDATE_INVALID_SELECTOR"]
   #|}
   #|
 

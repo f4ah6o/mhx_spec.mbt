@@ -189,18 +189,18 @@ fn parse_int_or(s : String, default_val : Int) -> Int {
 }
 
 ///|
-fn format_duration(ms : Int) -> String {
-  "\{ms}ms"
-}
-
-///|
+/// Render swap options in canonical spec form for stable output.
+/// Omits modifiers whose values match defaults (swap_delay=0,
+/// settle_delay=20, focus_scroll=false) so the canonical string is
+/// minimal.  Callers that need to preserve explicit `false` values
+/// should store the original attribute string separately.
 pub fn SwapOptions::to_spec_string(self : SwapOptions) -> String {
   let parts : Array[String] = [self.strategy.to_spec_string()]
   if self.swap_delay != 0 {
-    parts.push("swap:" + format_duration(self.swap_delay))
+    parts.push("swap:" + @canonical.format_duration_ms(self.swap_delay))
   }
   if self.settle_delay != 20 {
-    parts.push("settle:" + format_duration(self.settle_delay))
+    parts.push("settle:" + @canonical.format_duration_ms(self.settle_delay))
   }
   if !self.scroll.is_empty() {
     parts.push("scroll:" + self.scroll.trim().to_string())

@@ -299,6 +299,11 @@ pub fn parse_swap(input : String) -> @swap.SwapOptions raise ParseError {
 }
 
 ///|
+/// Permissive swap parser for runtime / compatibility callers.
+///
+/// Falls back to `@swap.SwapOptions::parse` when strict parsing fails,
+/// silently swallowing parse errors and returning defaults.
+/// Use `parse_swap` directly when you need deterministic errors.
 pub fn parse_swap_or_default(input : String) -> @swap.SwapOptions {
   parse_swap(input) catch {
     _ => @swap.SwapOptions::parse(input)
@@ -379,6 +384,11 @@ pub fn parse_sync(input : String) -> @sync.SyncStrategy raise ParseError {
 }
 
 ///|
+/// Permissive sync parser for runtime / compatibility callers.
+///
+/// Falls back to `@sync.parse_sync_strategy` when strict parsing fails,
+/// silently swallowing parse errors and returning defaults.
+/// Use `parse_sync` directly when you need deterministic errors.
 pub fn parse_sync_or_default(input : String) -> @sync.SyncStrategy {
   parse_sync(input) catch {
     _ => @sync.parse_sync_strategy(input)

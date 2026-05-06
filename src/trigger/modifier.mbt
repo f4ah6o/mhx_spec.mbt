@@ -68,11 +68,6 @@ pub fn QueueMode::to_spec_string(self : QueueMode) -> String {
 }
 
 ///|
-fn format_duration(ms : Int) -> String {
-  "\{ms}ms"
-}
-
-///|
 pub impl ToJson for Modifier with to_json(self) {
   match self {
     Once => { "type": "once" }
@@ -94,9 +89,9 @@ pub fn Modifier::to_spec_string(self : Modifier) -> String {
   match self {
     Once => "once"
     Changed => "changed"
-    Delay(ms) => "delay:" + format_duration(ms)
-    Throttle(ms) => "throttle:" + format_duration(ms)
-    Debounce(ms) => "debounce:" + format_duration(ms)
+    Delay(ms) => "delay:" + @canonical.format_duration_ms(ms)
+    Throttle(ms) => "throttle:" + @canonical.format_duration_ms(ms)
+    Debounce(ms) => "debounce:" + @canonical.format_duration_ms(ms)
     From(sel) => "from:" + sel.to_spec_string()
     Target(sel) => "target:" + sel.to_spec_string()
     Consume => "consume"

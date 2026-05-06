@@ -36,3 +36,14 @@ clean:
 
 # Pre-release check
 release-check: fmt info check test
+
+# Regenerate embedded fixtures from fixtures/ directory
+regen-fixtures:
+    python3 scripts/embed_fixtures.py . src/parser/fixtures_embedded.mbt
+    moon fmt src/parser/fixtures_embedded.mbt
+
+# Check that embedded fixtures are up-to-date (for CI)
+fixtures-check:
+    python3 scripts/embed_fixtures.py . src/parser/fixtures_embedded.mbt
+    moon fmt src/parser/fixtures_embedded.mbt
+    @git diff --exit-code src/parser/fixtures_embedded.mbt || (echo "fixtures_embedded.mbt is out of date; run 'just regen-fixtures'" && exit 1)

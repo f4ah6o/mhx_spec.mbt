@@ -77,7 +77,7 @@ pub(all) struct MhxAttributes {
   patch : String?
   delete : String?
 } derive(Eq, Show)
-pub fn MhxAttributes::empty() -> Self
+pub fn MhxAttributes::default() -> Self
 
 pub(all) struct Position {
   offset : Int

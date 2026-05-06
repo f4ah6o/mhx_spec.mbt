@@ -40,10 +40,14 @@ test "permissive swap parser remains available" {
   let strict_result : Result[@swap.SwapOptions, ParseError] = try? parse_swap(
     "bogus",
   )
-  inspect(
-    strict_result,
-    content="Err(UnknownSwapStrategy(pos={offset: 0, char: 'b'}, value=\"bogus\"))",
-  )
+  match strict_result {
+    Err(msg) =>
+      assert_eq(
+        msg,
+        UnknownSwapStrategy(pos=Position::at(0, "bogus"), value="bogus"),
+      )
+    Ok(_) => fail("expected error")
+  }
   let permissive = parse_swap_or_default("bogus unknown:value")
   assert_eq(permissive.strategy, @swap.Strategy::InnerHTML)
 }
@@ -61,9 +65,13 @@ test "permissive sync parser remains available" {
   let strict_result : Result[@sync.SyncStrategy, ParseError] = try? parse_sync(
     "bogus",
   )
-  inspect(
-    strict_result,
-    content="Err(UnknownSyncStrategy(pos={offset: 0, char: 'b'}, value=\"bogus\"))",
-  )
+  match strict_result {
+    Err(msg) =>
+      assert_eq(
+        msg,
+        UnknownSyncStrategy(pos=Position::at(0, "bogus"), value="bogus"),
+      )
+    Ok(_) => fail("expected error")
+  }
   assert_eq(parse_sync_or_default("bogus"), @sync.SyncStrategy::Drop)
 }

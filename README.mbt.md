@@ -127,6 +127,11 @@ Shared duration parsing accepts:
 
 Canonical serialization always renders durations as milliseconds, for example `1500ms`.
 
+Canonical output omits modifiers whose values match the default, so
+explicit `focus-scroll:false` is not preserved through a round-trip
+(default is `false`).  Callers that need to preserve explicit attribute
+strings should store the original input separately.
+
 ## API Reference
 
 ### Parser module (`@parser`)
@@ -179,10 +184,22 @@ Current stable parse-oriented codes include:
 - `MHX_PARSE_UNKNOWN_SWAP_MODIFIER`
 - `MHX_PARSE_UNKNOWN_SWAP_STRATEGY`
 - `MHX_PARSE_UNKNOWN_SYNC_STRATEGY`
-- `MHX_PARSE_EMPTY_SELECTOR`
 - `MHX_PARSE_MALFORMED_DURATION`
 
-Validation currently adds deterministic `MHX_VALIDATE_*` diagnostics for duplicate modifiers, conflicting request methods, unknown mhx attributes, invalid swap combinations, and empty request URLs.
+Validation adds deterministic `MHX_VALIDATE_*` diagnostics:
+
+- `MHX_VALIDATE_EMPTY_SELECTOR`
+- `MHX_VALIDATE_INVALID_SELECTOR`
+- `MHX_VALIDATE_DUPLICATE_TRIGGER_MODIFIER`
+- `MHX_VALIDATE_SWAP_STRATEGY_CONFLICT`
+- `MHX_VALIDATE_DELETE_SWAP_CONFLICT`
+- `MHX_VALIDATE_TRIGGER_SYNC_CONFLICT`
+- `MHX_VALIDATE_CONFLICTING_REQUEST_METHODS`
+- `MHX_VALIDATE_EMPTY_REQUEST_URL`
+- `MHX_VALIDATE_UNKNOWN_ATTRIBUTE`
+
+Code consumers can distinguish parse errors from semantic validation
+errors by the `MHX_PARSE_` vs `MHX_VALIDATE_` prefix.
 
 ### Selector validation scope
 

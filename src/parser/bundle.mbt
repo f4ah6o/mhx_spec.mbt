@@ -15,7 +15,7 @@ pub(all) struct MhxAttributes {
 } derive(Show, Eq)
 
 ///|
-pub fn MhxAttributes::empty() -> MhxAttributes {
+pub fn MhxAttributes::default() -> MhxAttributes {
   {
     trigger: None,
     swap: None,
@@ -26,24 +26,6 @@ pub fn MhxAttributes::empty() -> MhxAttributes {
     put: None,
     patch: None,
     delete: None,
-  }
-}
-
-///|
-fn is_prefixed_mhx_attr(name : String) -> Bool {
-  let lower = name.to_lower()
-  lower.has_prefix("hx-") || lower.has_prefix("mx-") || lower.has_prefix("mhx-")
-}
-
-///|
-fn normalize_attr_name(name : String) -> String {
-  let lower = name.to_lower()
-  if lower.has_prefix("mhx-") {
-    lower[4:].to_string()
-  } else if lower.has_prefix("hx-") || lower.has_prefix("mx-") {
-    lower[3:].to_string()
-  } else {
-    lower
   }
 }
 
@@ -93,10 +75,17 @@ fn unknown_attribute_diagnostic(name : String) -> Diagnostic {
 pub fn parse_attributes(
   attrs : Map[String, String],
 ) -> Result[MhxAttributes, Array[Diagnostic]] {
-  let mut parsed = MhxAttributes::empty()
+  let mut parsed = MhxAttributes::default()
   let diags : Array[Diagnostic] = []
   for raw_name, raw_value in attrs {
-    let name = normalize_attr_name(raw_name)
+    let lower = raw_name.to_lower()
+    let name = if lower.has_prefix("mhx-") {
+      lower[4:].to_string()
+    } else if lower.has_prefix("hx-") || lower.has_prefix("mx-") {
+      lower[3:].to_string()
+    } else {
+      lower
+    }
     match name {
       "trigger" => {
         let result : Result[Array[@trigger.TriggerDef], ParseError] = try? parse_trigger(
@@ -133,7 +122,9 @@ pub fn parse_attributes(
       "patch" => parsed = { ..parsed, patch: Some(raw_value) }
       "delete" => parsed = { ..parsed, delete: Some(raw_value) }
       _ =>
-        if is_prefixed_mhx_attr(raw_name) {
+        if lower.has_prefix("hx-") ||
+          lower.has_prefix("mx-") ||
+          lower.has_prefix("mhx-") {
           diags.push(unknown_attribute_diagnostic(raw_name))
         }
     }
@@ -146,28 +137,25 @@ pub fn parse_attributes(
 }
 
 ///|
+fn try_push_optional_method(
+  methods : Array[(String, String)],
+  value : String?,
+  name : String,
+) -> Unit {
+  match value {
+    Some(v) => methods.push((name, v))
+    None => ()
+  }
+}
+
+///|
 fn request_method_entries(attrs : MhxAttributes) -> Array[(String, String)] {
   let methods : Array[(String, String)] = []
-  match attrs.get {
-    Some(value) => methods.push(("get", value))
-    None => ()
-  }
-  match attrs.post {
-    Some(value) => methods.push(("post", value))
-    None => ()
-  }
-  match attrs.put {
-    Some(value) => methods.push(("put", value))
-    None => ()
-  }
-  match attrs.patch {
-    Some(value) => methods.push(("patch", value))
-    None => ()
-  }
-  match attrs.delete {
-    Some(value) => methods.push(("delete", value))
-    None => ()
-  }
+  try_push_optional_method(methods, attrs.get, "get")
+  try_push_optional_method(methods, attrs.post, "post")
+  try_push_optional_method(methods, attrs.put, "put")
+  try_push_optional_method(methods, attrs.patch, "patch")
+  try_push_optional_method(methods, attrs.delete, "delete")
   methods
 }
 

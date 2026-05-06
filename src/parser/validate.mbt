@@ -14,6 +14,14 @@ pub fn SelectorValidation::default() -> SelectorValidation {
 }
 
 ///|
+/// Build a validation diagnostic.
+///
+/// Validation diagnostics currently use `Position::zero()` because they
+/// operate on already-parsed typed values rather than raw input text.
+/// When richer source-mapping is needed (e.g. extracting position from the
+/// original attribute string), callers can supply a concrete position by
+/// changing the `MhxAttributes` builder to carry source spans alongside
+/// each attribute value.
 fn validation_diagnostic(
   code : String,
   message : String,
@@ -37,7 +45,7 @@ fn validate_selector_with_target(
         @trigger.Selector::Css(value) if value.trim().is_empty() =>
           [
             validation_diagnostic(
-              "MHX_PARSE_EMPTY_SELECTOR",
+              "MHX_VALIDATE_EMPTY_SELECTOR",
               "Selector must not be empty",
               target,
               Some("Provide a CSS selector or supported keyword."),
@@ -47,7 +55,7 @@ fn validate_selector_with_target(
         @trigger.Selector::Closest(value) if value.trim().is_empty() =>
           [
             validation_diagnostic(
-              "MHX_PARSE_EMPTY_SELECTOR",
+              "MHX_VALIDATE_EMPTY_SELECTOR",
               "Selector must not be empty",
               target,
               Some(
@@ -59,7 +67,7 @@ fn validate_selector_with_target(
         @trigger.Selector::Find(value) if value.trim().is_empty() =>
           [
             validation_diagnostic(
-              "MHX_PARSE_EMPTY_SELECTOR",
+              "MHX_VALIDATE_EMPTY_SELECTOR",
               "Selector must not be empty",
               target,
               Some(
@@ -71,7 +79,7 @@ fn validate_selector_with_target(
         @trigger.Selector::Next(value) if value.trim().is_empty() =>
           [
             validation_diagnostic(
-              "MHX_PARSE_EMPTY_SELECTOR",
+              "MHX_VALIDATE_EMPTY_SELECTOR",
               "Selector must not be empty",
               target,
               Some(
@@ -83,7 +91,7 @@ fn validate_selector_with_target(
         @trigger.Selector::Previous(value) if value.trim().is_empty() =>
           [
             validation_diagnostic(
-              "MHX_PARSE_EMPTY_SELECTOR",
+              "MHX_VALIDATE_EMPTY_SELECTOR",
               "Selector must not be empty",
               target,
               Some(
@@ -99,7 +107,7 @@ fn validate_selector_with_target(
         @trigger.Selector::Closest(value) if value.trim().is_empty() =>
           [
             validation_diagnostic(
-              "MHX_PARSE_INVALID_SELECTOR",
+              "MHX_VALIDATE_INVALID_SELECTOR",
               "Extended selector `closest` requires a trailing selector",
               target,
               Some("Use forms like `closest .item`."),
@@ -109,7 +117,7 @@ fn validate_selector_with_target(
         @trigger.Selector::Find(value) if value.trim().is_empty() =>
           [
             validation_diagnostic(
-              "MHX_PARSE_INVALID_SELECTOR",
+              "MHX_VALIDATE_INVALID_SELECTOR",
               "Extended selector `find` requires a trailing selector",
               target,
               Some("Use forms like `find .item`."),
@@ -119,7 +127,7 @@ fn validate_selector_with_target(
         @trigger.Selector::Next(value) if value.trim().is_empty() =>
           [
             validation_diagnostic(
-              "MHX_PARSE_INVALID_SELECTOR",
+              "MHX_VALIDATE_INVALID_SELECTOR",
               "Extended selector `next` requires a trailing selector",
               target,
               Some("Use forms like `next .row`."),
@@ -129,7 +137,7 @@ fn validate_selector_with_target(
         @trigger.Selector::Previous(value) if value.trim().is_empty() =>
           [
             validation_diagnostic(
-              "MHX_PARSE_INVALID_SELECTOR",
+              "MHX_VALIDATE_INVALID_SELECTOR",
               "Extended selector `previous` requires a trailing selector",
               target,
               Some("Use forms like `previous .row`."),
