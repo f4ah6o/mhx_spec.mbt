@@ -39,3 +39,38 @@ pub impl ToJson for Selector with to_json(self) {
     Css(s) => { "css": s.to_json() }
   }
 }
+
+///|
+pub fn Selector::to_spec_string(self : Selector) -> String {
+  match self {
+    This => "this"
+    Body => "body"
+    Window => "window"
+    Document => "document"
+    Closest(s) =>
+      if s.trim().is_empty() {
+        "closest"
+      } else {
+        "closest " + s.trim().to_string()
+      }
+    Find(s) =>
+      if s.trim().is_empty() {
+        "find"
+      } else {
+        "find " + s.trim().to_string()
+      }
+    Next(s) =>
+      if s.trim().is_empty() {
+        "next"
+      } else {
+        "next " + s.trim().to_string()
+      }
+    Previous(s) =>
+      if s.trim().is_empty() {
+        "previous"
+      } else {
+        "previous " + s.trim().to_string()
+      }
+    Css(s) => s.trim().to_string()
+  }
+}

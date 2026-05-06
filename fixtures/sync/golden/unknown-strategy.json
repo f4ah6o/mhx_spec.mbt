@@ -1,0 +1,6 @@
+{
+  "kind": "sync",
+  "show": null,
+  "canonical": null,
+  "diagnostic_codes": ["MHX_PARSE_UNKNOWN_SYNC_STRATEGY"]
+}

@@ -1,0 +1,6 @@
+{
+  "kind": "sync",
+  "show": "Queue(Last)",
+  "canonical": "queue:last",
+  "diagnostic_codes": []
+}

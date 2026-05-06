@@ -1,0 +1,6 @@
+{
+  "kind": "swap",
+  "show": "{strategy: OuterHTML, swap_delay: 1500, settle_delay: 50, scroll: \"\", show: \"\", focus_scroll: false}",
+  "canonical": "outerHTML swap:1500ms settle:50ms",
+  "diagnostic_codes": []
+}

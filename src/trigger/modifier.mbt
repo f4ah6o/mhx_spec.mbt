@@ -57,6 +57,22 @@ pub impl ToJson for QueueMode with to_json(self) {
 }
 
 ///|
+pub fn QueueMode::to_spec_string(self : QueueMode) -> String {
+  match self {
+    Drop => "drop"
+    Replace => "replace"
+    QueueFirst => "first"
+    QueueLast => "last"
+    QueueAll => "all"
+  }
+}
+
+///|
+fn format_duration(ms : Int) -> String {
+  "\{ms}ms"
+}
+
+///|
 pub impl ToJson for Modifier with to_json(self) {
   match self {
     Once => { "type": "once" }
@@ -70,5 +86,22 @@ pub impl ToJson for Modifier with to_json(self) {
     Prevent => { "type": "prevent" }
     Filter(expr) => { "type": "filter", "expr": expr.to_json() }
     Queue(mode) => { "type": "queue", "mode": mode.to_json() }
+  }
+}
+
+///|
+pub fn Modifier::to_spec_string(self : Modifier) -> String {
+  match self {
+    Once => "once"
+    Changed => "changed"
+    Delay(ms) => "delay:" + format_duration(ms)
+    Throttle(ms) => "throttle:" + format_duration(ms)
+    Debounce(ms) => "debounce:" + format_duration(ms)
+    From(sel) => "from:" + sel.to_spec_string()
+    Target(sel) => "target:" + sel.to_spec_string()
+    Consume => "consume"
+    Prevent => "prevent"
+    Filter(expr) => "[\{expr}]"
+    Queue(mode) => "queue:" + mode.to_spec_string()
   }
 }

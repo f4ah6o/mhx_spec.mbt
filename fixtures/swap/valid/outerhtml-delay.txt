@@ -1,0 +1,1 @@
+outerHTML swap:1.5s settle:50ms

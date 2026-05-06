@@ -1,0 +1,6 @@
+{
+  "kind": "trigger",
+  "show": "[{event_name: \"click\", modifiers: [Once]}]",
+  "canonical": "click once",
+  "diagnostic_codes": []
+}

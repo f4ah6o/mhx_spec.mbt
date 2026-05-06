@@ -103,3 +103,14 @@ test "parse_time_ms handles various formats" {
   let opts3 = SwapOptions::parse("innerHTML swap:1s")
   assert_eq(opts3.swap_delay, 1000)
 }
+
+///|
+test "SwapOptions canonical serialization is stable" {
+  let opts = SwapOptions::parse(
+    "outerHTML swap:200ms settle:50ms scroll:bottom focus-scroll:true",
+  )
+  inspect(
+    opts.to_spec_string(),
+    content="outerHTML swap:200ms settle:50ms scroll:bottom focus-scroll:true",
+  )
+}

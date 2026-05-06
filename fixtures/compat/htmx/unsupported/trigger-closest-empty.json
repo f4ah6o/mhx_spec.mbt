@@ -1,0 +1,6 @@
+{
+  "kind": "trigger",
+  "show": null,
+  "canonical": null,
+  "diagnostic_codes": ["MHX_PARSE_INVALID_SELECTOR"]
+}

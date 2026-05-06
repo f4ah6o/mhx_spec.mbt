@@ -1,0 +1,6 @@
+{
+  "kind": "swap",
+  "show": null,
+  "canonical": null,
+  "diagnostic_codes": ["MHX_PARSE_UNKNOWN_SWAP_STRATEGY"]
+}

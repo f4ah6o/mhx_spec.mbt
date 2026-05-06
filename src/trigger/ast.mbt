@@ -132,3 +132,73 @@ pub fn TriggerDef::get_queue_mode(self : TriggerDef) -> QueueMode {
   }
   QueueMode::Drop
 }
+
+///|
+pub fn TriggerDef::to_spec_string(self : TriggerDef) -> String {
+  let filters : Array[String] = []
+  let modifiers : Array[String] = []
+  for modifier in self.modifiers {
+    if modifier is Filter(expr) {
+      filters.push("[\{expr}]")
+    }
+  }
+  for modifier in self.modifiers {
+    if modifier is Once {
+      modifiers.push(modifier.to_spec_string())
+    }
+  }
+  for modifier in self.modifiers {
+    if modifier is Changed {
+      modifiers.push(modifier.to_spec_string())
+    }
+  }
+  for modifier in self.modifiers {
+    if modifier is Consume {
+      modifiers.push(modifier.to_spec_string())
+    }
+  }
+  for modifier in self.modifiers {
+    if modifier is Prevent {
+      modifiers.push(modifier.to_spec_string())
+    }
+  }
+  for modifier in self.modifiers {
+    if modifier is Delay(_) {
+      modifiers.push(modifier.to_spec_string())
+    }
+  }
+  for modifier in self.modifiers {
+    if modifier is Throttle(_) {
+      modifiers.push(modifier.to_spec_string())
+    }
+  }
+  for modifier in self.modifiers {
+    if modifier is Debounce(_) {
+      modifiers.push(modifier.to_spec_string())
+    }
+  }
+  for modifier in self.modifiers {
+    if modifier is From(_) {
+      modifiers.push(modifier.to_spec_string())
+    }
+  }
+  for modifier in self.modifiers {
+    if modifier is Target(_) {
+      modifiers.push(modifier.to_spec_string())
+    }
+  }
+  for modifier in self.modifiers {
+    if modifier is Queue(_) {
+      modifiers.push(modifier.to_spec_string())
+    }
+  }
+  let mut result = self.event_name
+  if !filters.is_empty() {
+    result = result + filters.join("")
+  }
+  if modifiers.is_empty() {
+    result
+  } else {
+    result + " " + modifiers.join(" ")
+  }
+}

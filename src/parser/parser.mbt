@@ -129,13 +129,17 @@ fn parse_modifier_by_name(
 ///|
 /// Parse a time value (number with optional ms/s suffix)
 fn parse_time_value(scanner : Scanner) -> Int raise ParseError {
-  let value = scanner.scan_int()
-  // Check for time unit suffix
-  let unit = scanner.scan_identifier()
-  match unit {
-    "" | "ms" => value
-    "s" => value * 1000
-    _ => value // Assume ms if unknown
+  let start = scanner.position()
+  let token = scanner.scan_value_token()
+  if token.is_empty() {
+    raise MalformedDuration(
+      pos=Position::at(start, scanner.input),
+      value="",
+      reason="missing numeric component",
+    )
+  }
+  parse_duration_ms(token) catch {
+    err => raise err.shift(start, scanner.input)
   }
 }
 
@@ -148,6 +152,10 @@ fn parse_selector(scanner : Scanner) -> @trigger.Selector {
     "body" => @trigger.Selector::Body
     "window" => @trigger.Selector::Window
     "document" => @trigger.Selector::Document
+    "closest" => @trigger.Selector::Closest("")
+    "find" => @trigger.Selector::Find("")
+    "next" => @trigger.Selector::Next("")
+    "previous" => @trigger.Selector::Previous("")
     _ =>
       if value.has_prefix("closest ") {
         let sel = value[8:].to_string().trim().to_string()
@@ -180,5 +188,199 @@ fn parse_queue_mode(scanner : Scanner) -> @trigger.QueueMode raise ParseError {
     "all" => @trigger.QueueMode::QueueAll
     _ =>
       raise InvalidModifier(pos=scanner.make_position(), name="queue:" + value)
+  }
+}
+
+///|
+fn parse_swap_strategy_strict(
+  input : String,
+  name : String,
+  start : Int,
+) -> @swap.Strategy raise ParseError {
+  match name.to_lower() {
+    "innerhtml" => @swap.Strategy::InnerHTML
+    "outerhtml" => @swap.Strategy::OuterHTML
+    "beforebegin" => @swap.Strategy::BeforeBegin
+    "afterbegin" => @swap.Strategy::AfterBegin
+    "beforeend" => @swap.Strategy::BeforeEnd
+    "afterend" => @swap.Strategy::AfterEnd
+    "delete" => @swap.Strategy::Delete
+    "none" => @swap.Strategy::None_
+    _ => raise UnknownSwapStrategy(pos=Position::at(start, input), value=name)
+  }
+}
+
+///|
+fn parse_bool_modifier_value(
+  input : String,
+  value : String,
+  start : Int,
+) -> Bool raise ParseError {
+  match value.to_lower() {
+    "true" => true
+    "false" => false
+    _ =>
+      raise InvalidModifier(
+        pos=Position::at(start, input),
+        name="focus-scroll:" + value,
+      )
+  }
+}
+
+///|
+pub fn parse_swap(input : String) -> @swap.SwapOptions raise ParseError {
+  let scanner = Scanner::new(input)
+  scanner.skip_whitespace()
+  if scanner.is_eof() {
+    raise UnexpectedEnd(pos=Position::zero(), expected="swap strategy")
+  }
+  let strategy_start = scanner.position()
+  let strategy_name = scanner.scan_identifier()
+  if strategy_name.is_empty() {
+    raise UnexpectedChar(
+      pos=Position::at(strategy_start, input),
+      expected="swap strategy",
+    )
+  }
+  let strategy = parse_swap_strategy_strict(
+    input, strategy_name, strategy_start,
+  )
+  let mut options = @swap.SwapOptions::with_strategy(strategy)
+  while true {
+    scanner.skip_whitespace()
+    if scanner.is_eof() {
+      break
+    }
+    let modifier_start = scanner.position()
+    let modifier_name = scanner.scan_identifier()
+    if modifier_name.is_empty() {
+      raise UnexpectedChar(
+        pos=Position::at(modifier_start, input),
+        expected="swap modifier",
+      )
+    }
+    scanner.expect(':')
+    let value_start = scanner.position()
+    let value = scanner.scan_value_token().trim().to_string()
+    if value.is_empty() {
+      raise UnexpectedEnd(
+        pos=Position::at(value_start, input),
+        expected=modifier_name + " value",
+      )
+    }
+    match modifier_name {
+      "swap" => {
+        let delay = parse_duration_ms(value) catch {
+          err => raise err.shift(value_start, input)
+        }
+        options = { ..options, swap_delay: delay }
+      }
+      "settle" => {
+        let delay = parse_duration_ms(value) catch {
+          err => raise err.shift(value_start, input)
+        }
+        options = { ..options, settle_delay: delay }
+      }
+      "scroll" => options = { ..options, scroll: value }
+      "show" => options = { ..options, show: value }
+      "focus-scroll" =>
+        options = {
+          ..options,
+          focus_scroll: parse_bool_modifier_value(input, value, value_start),
+        }
+      _ =>
+        raise UnknownSwapModifier(
+          pos=Position::at(modifier_start, input),
+          name=modifier_name,
+        )
+    }
+  }
+  options
+}
+
+///|
+pub fn parse_swap_or_default(input : String) -> @swap.SwapOptions {
+  parse_swap(input) catch {
+    _ => @swap.SwapOptions::parse(input)
+  }
+}
+
+///|
+fn parse_sync_queue_mode(
+  input : String,
+  value : String,
+  start : Int,
+) -> @sync.QueueMode raise ParseError {
+  match value.to_lower() {
+    "first" => @sync.QueueMode::First
+    "last" => @sync.QueueMode::Last
+    "all" => @sync.QueueMode::All
+    _ =>
+      raise UnknownSyncStrategy(
+        pos=Position::at(start, input),
+        value="queue:" + value,
+      )
+  }
+}
+
+///|
+pub fn parse_sync(input : String) -> @sync.SyncStrategy raise ParseError {
+  let scanner = Scanner::new(input)
+  scanner.skip_whitespace()
+  if scanner.is_eof() {
+    raise UnexpectedEnd(pos=Position::zero(), expected="sync strategy")
+  }
+  let start = scanner.position()
+  let strategy = scanner.scan_identifier().to_lower()
+  if strategy.is_empty() {
+    raise UnexpectedChar(
+      pos=Position::at(start, input),
+      expected="sync strategy",
+    )
+  }
+  let parsed = match strategy {
+    "drop" => @sync.SyncStrategy::Drop
+    "replace" => @sync.SyncStrategy::Replace
+    "queue" => {
+      scanner.skip_whitespace()
+      if scanner.try_consume(':') {
+        scanner.skip_whitespace()
+      }
+      if scanner.is_eof() {
+        @sync.SyncStrategy::Queue(@sync.QueueMode::First)
+      } else {
+        let queue_start = scanner.position()
+        let mode = scanner.scan_identifier()
+        if mode.is_empty() {
+          raise UnexpectedEnd(
+            pos=Position::at(queue_start, input),
+            expected="queue mode",
+          )
+        }
+        @sync.SyncStrategy::Queue(
+          parse_sync_queue_mode(input, mode, queue_start),
+        )
+      }
+    }
+    _ =>
+      raise UnknownSyncStrategy(
+        pos=Position::at(start, input),
+        value=input.trim().to_string(),
+      )
+  }
+  scanner.skip_whitespace()
+  if !scanner.is_eof() {
+    raise UnknownSyncStrategy(
+      pos=scanner.make_position(),
+      value=input.trim().to_string(),
+    )
+  }
+  parsed
+}
+
+///|
+pub fn parse_sync_or_default(input : String) -> @sync.SyncStrategy {
+  parse_sync(input) catch {
+    _ => @sync.parse_sync_strategy(input)
   }
 }

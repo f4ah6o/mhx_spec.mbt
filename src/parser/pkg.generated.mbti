@@ -2,11 +2,41 @@
 package "f4ah6o/mhx-spec/parser"
 
 import {
+  "f4ah6o/mhx-spec/swap",
+  "f4ah6o/mhx-spec/sync",
   "f4ah6o/mhx-spec/trigger",
 }
 
 // Values
+pub fn embedded_fixture(String) -> String?
+
+pub fn embedded_fixture_paths() -> Array[String]
+
+pub fn format_duration_ms(Int) -> String
+
+pub fn parse_attributes(Map[String, String]) -> Result[MhxAttributes, Array[Diagnostic]]
+
+pub fn parse_duration_ms(String) -> Int raise ParseError
+
+pub fn parse_swap(String) -> @swap.SwapOptions raise ParseError
+
+pub fn parse_swap_or_default(String) -> @swap.SwapOptions
+
+pub fn parse_sync(String) -> @sync.SyncStrategy raise ParseError
+
+pub fn parse_sync_or_default(String) -> @sync.SyncStrategy
+
 pub fn parse_trigger(String) -> Array[@trigger.TriggerDef] raise ParseError
+
+pub fn validate_attributes(MhxAttributes) -> Array[Diagnostic]
+
+pub fn validate_selector(@trigger.Selector, SelectorValidation) -> Array[Diagnostic]
+
+pub fn validate_swap(@swap.SwapOptions) -> Array[Diagnostic]
+
+pub fn validate_sync(@sync.SyncStrategy) -> Array[Diagnostic]
+
+pub fn validate_trigger(@trigger.TriggerDef) -> Array[Diagnostic]
 
 // Errors
 pub(all) suberror ParseError {
@@ -15,15 +45,47 @@ pub(all) suberror ParseError {
   InvalidNumber(pos~ : Position, value~ : String)
   InvalidModifier(pos~ : Position, name~ : String)
   InvalidSelector(pos~ : Position, value~ : String)
+  UnknownSwapModifier(pos~ : Position, name~ : String)
+  UnknownSwapStrategy(pos~ : Position, value~ : String)
+  UnknownSyncStrategy(pos~ : Position, value~ : String)
+  MalformedDuration(pos~ : Position, value~ : String, reason~ : String)
 } derive(Eq, Show)
+pub fn ParseError::shift(Self, Int, String) -> Self
+pub fn ParseError::to_diagnostic(Self, target? : String) -> Diagnostic
 pub impl ToJson for ParseError
 
 // Types and methods
+pub struct Diagnostic {
+  code : String
+  message : String
+  target : String
+  position : Position
+  hint : String?
+  context : String?
+} derive(Eq, Show)
+pub fn Diagnostic::new(String, String, String, Position, String?, String?) -> Self
+pub impl ToJson for Diagnostic
+
+pub(all) struct MhxAttributes {
+  trigger : Array[@trigger.TriggerDef]?
+  swap : @swap.SwapOptions?
+  sync : @sync.SyncStrategy?
+  target : @trigger.Selector?
+  get : String?
+  post : String?
+  put : String?
+  patch : String?
+  delete : String?
+} derive(Eq, Show)
+pub fn MhxAttributes::empty() -> Self
+
 pub(all) struct Position {
   offset : Int
   char : Char
 } derive(Eq, Show)
 pub fn Position::at(Int, String) -> Self
+pub fn Position::shift(Self, Int, String) -> Self
+pub fn Position::zero() -> Self
 pub impl ToJson for Position
 
 pub struct Scanner {
@@ -46,8 +108,16 @@ pub fn Scanner::scan_identifier(Self) -> String
 pub fn Scanner::scan_int(Self) -> Int raise ParseError
 pub fn Scanner::scan_selector_value(Self) -> String
 pub fn Scanner::scan_until(Self, Char) -> String
+pub fn Scanner::scan_value_token(Self) -> String
 pub fn Scanner::skip_whitespace(Self) -> Unit
 pub fn Scanner::try_consume(Self, Char) -> Bool
+
+pub(all) enum SelectorValidation {
+  None
+  NonEmpty
+  KnownExtendedSelector
+} derive(Eq, Show)
+pub fn SelectorValidation::default() -> Self
 
 // Type aliases
 

@@ -1,0 +1,6 @@
+{
+  "kind": "trigger",
+  "show": "[{event_name: \"click\", modifiers: []}, {event_name: \"keyup\", modifiers: [Delay(100)]}]",
+  "canonical": "click, keyup delay:100ms",
+  "diagnostic_codes": []
+}

@@ -1,4 +1,6 @@
 import {
+  "f4ah6o/mhx-spec/swap" @swap,
+  "f4ah6o/mhx-spec/sync" @sync,
   "f4ah6o/mhx-spec/trigger" @trigger,
   "moonbitlang/core/json",
 }
