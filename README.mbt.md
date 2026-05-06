@@ -328,6 +328,12 @@ Test files:
 - `src/trigger/ast_test.mbt` - AST tests (6 tests)
 - `src/swap/swap_test.mbt` - Swap strategy tests (13 tests)
 
+### Issue Management
+
+Issues are managed locally in the `issues/` directory as markdown files.  
+This approach is inspired by [shiguredo/http3-rs](https://github.com/shiguredo/http3-rs/blob/develop/AGENTS.md).  
+See [AGENTS.md](AGENTS.md) for the full workflow.
+
 ## Examples
 
 ### Complex Trigger Parsing
