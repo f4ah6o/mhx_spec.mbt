@@ -13,14 +13,14 @@ pub(all) struct TriggerDef {
 } derive(Show, Eq)
 
 ///|
-pub impl ToJson for TriggerDef with to_json(self) {
+pub impl ToJson for TriggerDef with fn to_json(self) {
   { "event": self.event_name.to_json(), "modifiers": self.modifiers.to_json() }
 }
 
 ///|
 /// Create a simple trigger with just an event name
 pub fn TriggerDef::simple(event_name : String) -> TriggerDef {
-  { event_name, modifiers: [] }
+  { event_name, modifiers: [], }
 }
 
 ///|
@@ -29,7 +29,7 @@ pub fn TriggerDef::new(
   event_name : String,
   modifiers : Array[Modifier],
 ) -> TriggerDef {
-  { event_name, modifiers }
+  { event_name, modifiers, }
 }
 
 ///|
@@ -46,7 +46,7 @@ pub fn TriggerDef::is_changed(self : TriggerDef) -> Bool {
 
 ///|
 /// Get the delay modifier value, if present
-pub fn TriggerDef::get_delay(self : TriggerDef) -> Int? {
+pub fn TriggerDef::get_delay(self : TriggerDef) -> Int32? {
   for m in self.modifiers {
     if m is Delay(ms) {
       return Some(ms)
@@ -57,7 +57,7 @@ pub fn TriggerDef::get_delay(self : TriggerDef) -> Int? {
 
 ///|
 /// Get the throttle modifier value, if present
-pub fn TriggerDef::get_throttle(self : TriggerDef) -> Int? {
+pub fn TriggerDef::get_throttle(self : TriggerDef) -> Int32? {
   for m in self.modifiers {
     if m is Throttle(ms) {
       return Some(ms)
@@ -68,7 +68,7 @@ pub fn TriggerDef::get_throttle(self : TriggerDef) -> Int? {
 
 ///|
 /// Get the debounce modifier value, if present
-pub fn TriggerDef::get_debounce(self : TriggerDef) -> Int? {
+pub fn TriggerDef::get_debounce(self : TriggerDef) -> Int32? {
   for m in self.modifiers {
     if m is Debounce(ms) {
       return Some(ms)

@@ -128,7 +128,7 @@ fn parse_modifier_by_name(
 
 ///|
 /// Parse a time value (number with optional ms/s suffix)
-fn parse_time_value(scanner : Scanner) -> Int raise ParseError {
+fn parse_time_value(scanner : Scanner) -> Int32 raise ParseError {
   let start = scanner.position()
   let token = scanner.scan_value_token()
   if token.is_empty() {
@@ -195,7 +195,7 @@ fn parse_queue_mode(scanner : Scanner) -> @trigger.QueueMode raise ParseError {
 fn parse_swap_strategy_strict(
   input : String,
   name : String,
-  start : Int,
+  start : Int32,
 ) -> @swap.Strategy raise ParseError {
   match name.to_lower() {
     "innerhtml" => @swap.Strategy::InnerHTML
@@ -214,7 +214,7 @@ fn parse_swap_strategy_strict(
 fn parse_bool_modifier_value(
   input : String,
   value : String,
-  start : Int,
+  start : Int32,
 ) -> Bool raise ParseError {
   match value.to_lower() {
     "true" => true
@@ -273,16 +273,16 @@ pub fn parse_swap(input : String) -> @swap.SwapOptions raise ParseError {
         let delay = parse_duration_ms(value) catch {
           err => raise err.shift(value_start, input)
         }
-        options = { ..options, swap_delay: delay }
+        options = { ..options, swap_delay: delay, }
       }
       "settle" => {
         let delay = parse_duration_ms(value) catch {
           err => raise err.shift(value_start, input)
         }
-        options = { ..options, settle_delay: delay }
+        options = { ..options, settle_delay: delay, }
       }
-      "scroll" => options = { ..options, scroll: value }
-      "show" => options = { ..options, show: value }
+      "scroll" => options = { ..options, scroll: value, }
+      "show" => options = { ..options, show: value, }
       "focus-scroll" =>
         options = {
           ..options,
@@ -314,7 +314,7 @@ pub fn parse_swap_or_default(input : String) -> @swap.SwapOptions {
 fn parse_sync_queue_mode(
   input : String,
   value : String,
-  start : Int,
+  start : Int32,
 ) -> @sync.QueueMode raise ParseError {
   match value.to_lower() {
     "first" => @sync.QueueMode::First

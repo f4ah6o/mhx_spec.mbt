@@ -1,0 +1,15 @@
+name = "f4ah6o/mhx-spec"
+
+version = "0.1.1"
+
+source = "src"
+
+warnings = "-27"
+
+readme = "README.mbt.md"
+
+license = "Apache-2.0"
+
+repository = "https://github.com/f4ah6o/mhx_spec.mbt"
+
+keywords = [ "hypermedia", "hda" ]

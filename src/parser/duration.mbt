@@ -7,7 +7,7 @@ fn is_ascii_letter(c : Char) -> Bool {
 }
 
 ///|
-fn pow10(n : Int) -> Int {
+fn pow10(n : Int32) -> Int32 {
   let mut result = 1
   for _i = 0; _i < n; _i = _i + 1 {
     result = result * 10
@@ -19,8 +19,8 @@ fn pow10(n : Int) -> Int {
 fn parse_digits(
   numeric : String,
   full_input : String,
-  offset : Int,
-) -> Int raise ParseError {
+  offset : Int32,
+) -> Int32 raise ParseError {
   if numeric.is_empty() {
     raise MalformedDuration(
       pos=Position::at(offset, full_input),
@@ -52,7 +52,7 @@ fn parse_digits(
 /// - `100ms`
 /// - `1s`
 /// - `1.5s`
-pub fn parse_duration_ms(input : String) -> Int raise ParseError {
+pub fn parse_duration_ms(input : String) -> Int32 raise ParseError {
   let trimmed = input.trim().to_string()
   if trimmed.is_empty() {
     raise MalformedDuration(
@@ -128,6 +128,6 @@ pub fn parse_duration_ms(input : String) -> Int raise ParseError {
 }
 
 ///|
-pub fn format_duration_ms(ms : Int) -> String {
+pub fn format_duration_ms(ms : Int32) -> String {
   @canonical.format_duration_ms(ms)
 }

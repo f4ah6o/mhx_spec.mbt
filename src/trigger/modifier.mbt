@@ -10,11 +10,11 @@ pub(all) enum Modifier {
   /// Fire only when the value has changed
   Changed
   /// Delay before firing (milliseconds)
-  Delay(Int)
+  Delay(Int32)
   /// Throttle: fire at most once per interval (milliseconds)
-  Throttle(Int)
+  Throttle(Int32)
   /// Debounce: fire after quiet period (milliseconds)
-  Debounce(Int)
+  Debounce(Int32)
   /// Listen for events from a different element
   From(Selector)
   /// Specify the target element for the action
@@ -46,7 +46,7 @@ pub(all) enum QueueMode {
 } derive(Show, Eq)
 
 ///|
-pub impl ToJson for QueueMode with to_json(self) {
+pub impl ToJson for QueueMode with fn to_json(self) {
   match self {
     Drop => "drop".to_json()
     Replace => "replace".to_json()
@@ -68,7 +68,7 @@ pub fn QueueMode::to_spec_string(self : QueueMode) -> String {
 }
 
 ///|
-pub impl ToJson for Modifier with to_json(self) {
+pub impl ToJson for Modifier with fn to_json(self) {
   match self {
     Once => { "type": "once" }
     Changed => { "type": "changed" }

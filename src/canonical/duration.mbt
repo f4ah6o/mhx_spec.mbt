@@ -8,6 +8,6 @@
 /// callers that construct durations from typed spec values are expected
 /// to guarantee non-negative input. If a caller path might supply a
 /// negative value it must guard before calling this function.
-pub fn format_duration_ms(ms : Int) -> String {
+pub fn format_duration_ms(ms : Int32) -> String {
   "\{ms}ms"
 }

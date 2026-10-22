@@ -26,7 +26,7 @@ pub(all) enum Selector {
 } derive(Show, Eq)
 
 ///|
-pub impl ToJson for Selector with to_json(self) {
+pub impl ToJson for Selector with fn to_json(self) {
   match self {
     This => "this".to_json()
     Body => "body".to_json()

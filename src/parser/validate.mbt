@@ -174,7 +174,7 @@ fn duplicate_modifier_diagnostic(name : String) -> Diagnostic {
 }
 
 ///|
-fn duplicate_if_needed(name : String, count : Int) -> Array[Diagnostic] {
+fn duplicate_if_needed(name : String, count : Int32) -> Array[Diagnostic] {
   if count > 1 {
     [duplicate_modifier_diagnostic(name)]
   } else {

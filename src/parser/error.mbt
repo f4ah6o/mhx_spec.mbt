@@ -5,25 +5,25 @@
 ///|
 /// Position in the input string
 pub(all) struct Position {
-  offset : Int
+  offset : Int32
   /// The character at this position (if available)
   char : Char
 } derive(Show, Eq)
 
 ///|
-pub impl ToJson for Position with to_json(self) {
+pub impl ToJson for Position with fn to_json(self) {
   { "offset": self.offset.to_json(), "char": self.char.to_string().to_json() }
 }
 
 ///|
 pub fn Position::zero() -> Position {
-  { offset: 0, char: '\u0000' }
+  { offset: 0, char: '\u0000', }
 }
 
 ///|
 pub fn Position::shift(
   self : Position,
-  offset : Int,
+  offset : Int32,
   input : String,
 ) -> Position {
   Position::at(self.offset + offset, input)
@@ -40,7 +40,7 @@ pub struct Diagnostic {
 } derive(Show, Eq)
 
 ///|
-pub impl ToJson for Diagnostic with to_json(self) {
+pub impl ToJson for Diagnostic with fn to_json(self) {
   {
     "code": self.code.to_json(),
     "message": self.message.to_json(),
@@ -60,7 +60,7 @@ pub fn Diagnostic::new(
   hint : String?,
   context : String?,
 ) -> Diagnostic {
-  { code, message, target, position, hint, context }
+  { code, message, target, position, hint, context, }
 }
 
 ///|
@@ -78,7 +78,7 @@ pub(all) suberror ParseError {
 } derive(Show, Eq)
 
 ///|
-pub impl ToJson for ParseError with to_json(self) {
+pub impl ToJson for ParseError with fn to_json(self) {
   match self {
     UnexpectedChar(pos~, expected~) =>
       {
@@ -140,7 +140,7 @@ pub impl ToJson for ParseError with to_json(self) {
 
 ///|
 /// Create a position at the given offset
-pub fn Position::at(offset : Int, input : String) -> Position {
+pub fn Position::at(offset : Int32, input : String) -> Position {
   let char = if offset < input.length() {
     match input.get_char(offset) {
       Some(c) => c
@@ -149,13 +149,13 @@ pub fn Position::at(offset : Int, input : String) -> Position {
   } else {
     '\u0000'
   }
-  { offset, char }
+  { offset, char, }
 }
 
 ///|
 pub fn ParseError::shift(
   self : ParseError,
-  offset : Int,
+  offset : Int32,
   input : String,
 ) -> ParseError {
   match self {
@@ -183,7 +183,7 @@ pub fn ParseError::shift(
 ///|
 pub fn ParseError::to_diagnostic(
   self : ParseError,
-  target? : String = "input",
+  target~ : String = "input",
 ) -> Diagnostic {
   match self {
     UnexpectedChar(pos~, expected~) =>

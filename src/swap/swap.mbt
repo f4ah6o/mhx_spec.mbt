@@ -64,9 +64,9 @@ pub(all) struct SwapOptions {
   /// The swap strategy
   strategy : Strategy
   /// Delay before swap in milliseconds
-  swap_delay : Int
+  swap_delay : Int32
   /// Delay before settling in milliseconds
-  settle_delay : Int
+  settle_delay : Int32
   /// Scroll behavior: "top", "bottom", or empty for no scroll
   scroll : String
   /// Whether to scroll target into view
@@ -123,13 +123,13 @@ pub fn SwapOptions::parse(value : String) -> SwapOptions {
         let modifier = part.view(end_offset=colon_idx).to_string()
         let value = part.view(start_offset=colon_idx + 1).to_string()
         match modifier {
-          "swap" => options = { ..options, swap_delay: parse_time_ms(value) }
+          "swap" => options = { ..options, swap_delay: parse_time_ms(value), }
           "settle" =>
-            options = { ..options, settle_delay: parse_time_ms(value) }
-          "scroll" => options = { ..options, scroll: value }
-          "show" => options = { ..options, show: value }
+            options = { ..options, settle_delay: parse_time_ms(value), }
+          "scroll" => options = { ..options, scroll: value, }
+          "show" => options = { ..options, show: value, }
           "focus-scroll" =>
-            options = { ..options, focus_scroll: value == "true" }
+            options = { ..options, focus_scroll: value == "true", }
           _ => () // ignore unknown modifiers
         }
       }
@@ -142,7 +142,7 @@ pub fn SwapOptions::parse(value : String) -> SwapOptions {
 ///|
 /// Parse time string to milliseconds
 /// Supports: "500ms", "1s", "1.5s", or plain number as ms
-fn parse_time_ms(s : String) -> Int {
+fn parse_time_ms(s : String) -> Int32 {
   let trimmed = s.trim().to_string()
   if trimmed.has_suffix("ms") {
     let num_str = trimmed.view(end_offset=trimmed.length() - 2).to_string()
@@ -172,7 +172,7 @@ fn parse_time_ms(s : String) -> Int {
 
 ///|
 /// Simple power of 10
-fn pow10(n : Int) -> Int {
+fn pow10(n : Int32) -> Int32 {
   let mut result = 1
   for _i = 0; _i < n; _i = _i + 1 {
     result = result * 10
@@ -182,7 +182,7 @@ fn pow10(n : Int) -> Int {
 
 ///|
 /// Parse int or return default
-fn parse_int_or(s : String, default_val : Int) -> Int {
+fn parse_int_or(s : String, default_val : Int32) -> Int32 {
   @string.parse_int(s) catch {
     _ => default_val
   }

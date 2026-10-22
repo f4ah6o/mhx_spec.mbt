@@ -13,13 +13,13 @@ let modifier_keywords : Array[String] = [
 /// Scanner state for parsing
 pub struct Scanner {
   input : String
-  mut pos : Int
+  mut pos : Int32
 } derive(Show)
 
 ///|
 /// Create a new scanner for the input string
 pub fn Scanner::new(input : String) -> Scanner {
-  { input, pos: 0 }
+  { input, pos: 0, }
 }
 
 ///|
@@ -30,7 +30,7 @@ pub fn Scanner::is_eof(self : Scanner) -> Bool {
 
 ///|
 /// Get current position
-pub fn Scanner::position(self : Scanner) -> Int {
+pub fn Scanner::position(self : Scanner) -> Int32 {
   self.pos
 }
 
@@ -189,7 +189,7 @@ pub fn Scanner::is_at_modifier_start(self : Scanner) -> Bool {
 
 ///|
 /// Scan an integer
-pub fn Scanner::scan_int(self : Scanner) -> Int raise ParseError {
+pub fn Scanner::scan_int(self : Scanner) -> Int32 raise ParseError {
   let start = self.pos
   while !self.is_eof() {
     match self.peek() {
